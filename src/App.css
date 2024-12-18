@@ -181,8 +181,16 @@ td{
  
    border-radius: 0.5em;
    font-weight: 500;
+   padding: 1em;
 }
 
 .navigateTable select{
    width: 30%;
+   font-weight: 700;
+}
+
+
+.footer{
+  height: 100px;
+
 }

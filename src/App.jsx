@@ -5,6 +5,7 @@ import GraphSection from './components/GraphSection';
 import AskAi from './components/AskAi';
 import TempratureTable from './components/TempratureTable';
 
+
 function App(){
 
   return <>
@@ -13,6 +14,7 @@ function App(){
     <GraphSection/>
     <TempratureTable/>
     <AskAi/>
+    <div className='footer'></div>
   </>
 }
 
