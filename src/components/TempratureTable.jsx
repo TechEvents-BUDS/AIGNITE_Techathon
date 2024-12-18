@@ -1,107 +1,162 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import API_KEY from "../../GEMINI_API";
+import DropDown from "./DrpoDown";
 
+function TemperatureTable() {
+  const divShortName = [
+    "Okara",
+    "Gujranwala",
+    "Rawalpindi",
+    "Sialkot",
+    "Hyderabad",
+    "Sargodha",
+    "Rahimyar",
+    "Quetta",
+    "Dera",
+    "Swabi",
+    "Karachi",
+    "Haripur",
+    "Daharki",
+    "Chitral",
+    "Peshawar",
+  ];
 
-function TempratureTable(){
+  const [cityData, setCityData] = useState(null);
+  const [cityName, setCityName] = useState("Okara");
 
-   let divShortName = ['Okara', 'Gujranwala', 'Rawalpindi', 'Sialkot', 'Hyderabad', 'Sargodha', 'Rahimyar', 'Quetta', 'Dera', 'Swabi', 'Bhawal', 'Palandri', 'Haripur', 'Daharki', 'Chitral', 'Peshawar']
+  // Function to fetch coordinates of a city
+  async function getCoordinates(cityName) {
+    const API_URL =
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
 
-    
-async function getCoordinates(cityName) {
-    const geocodeApiKey = "02970067d7394aeb884ba5917f935204"; // Replace with your OpenCage API key
-    const geocodeUrl = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(cityName)}&key=${geocodeApiKey}`;
-  
     try {
-      const response = await fetch(geocodeUrl);
-      if (!response.ok) {
-        throw new Error("Failed to fetch coordinates: " + response.statusText);
+      const res = await fetch(`${API_URL}?key=${API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `Provide only latitude and longitude as an array for ${cityName}. Example: [latitude, longitude]`,
+                },
+              ],
+            },
+          ],
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`API returned status: ${res.status}`);
       }
-      const data = await response.json();
-      const { lat, lng } = data.results[0].geometry;
-      return { latitude: lat, longitude: lng };
+
+      const data = await res.json();
+      const content = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const match = content.match(/\[([\d\.\-]+),\s*([\d\.\-]+)\]/);
+      if (match) {
+        const latitude = parseFloat(match[1]);
+        const longitude = parseFloat(match[2]);
+        return { latitude, longitude };
+      } else {
+        throw new Error("Coordinates not found in the API response content");
+      }
     } catch (error) {
-      console.error(error);
-      throw new Error("Unable to get coordinates for the city.");
+      console.error("Error fetching coordinates:", error);
+      return null;
     }
   }
-  
-  // Function to fetch weather data by city name
+
+  // Function to fetch weather data by city
   async function fetchWeatherByCity(cityName) {
     try {
-      // Step 1: Get coordinates for the city
-      const { latitude, longitude } = await getCoordinates(cityName);
-  
-      // Step 2: Define the Open Meteo API with desired parameters
+      const coordinates = await getCoordinates(cityName);
+      if (!coordinates) {
+        return null;
+      }
+
+      const { latitude, longitude } = coordinates;
       const weatherApiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,precipitation,shortwave_radiation,evapotranspiration`;
-  
-      // Step 3: Fetch weather data
+
       const response = await fetch(weatherApiUrl);
       if (!response.ok) {
         throw new Error("Failed to fetch weather data: " + response.statusText);
       }
-  
+
       const data = await response.json();
       const hourlyData = data.hourly;
-      console.log(data)
-  
-      // Step 4: Calculate averages for each parameter
+
       const avgTemperature = calculateAverage(hourlyData.temperature_2m);
       const avgPrecipitation = calculateAverage(hourlyData.precipitation);
-      const avgShortwaveRadiation = calculateAverage(hourlyData.shortwave_radiation);
-      const avgEvapotranspiration = calculateAverage(hourlyData.evapotranspiration);
-  
-      // Step 5: Log results
-      console.log(`Weather data for ${cityName}:`);
-      console.log("Average Temperature (°C):", avgTemperature.toFixed(2));
-      console.log("Average Precipitation (mm):", avgPrecipitation.toFixed(2));
-      console.log("Average Shortwave Radiation (W/m²):", avgShortwaveRadiation.toFixed(2));
-      console.log("Average Evapotranspiration (mm):", avgEvapotranspiration.toFixed(2));
-      let weatherData = [ avgTemperature.toFixed(2), avgPrecipitation.toFixed(2),avgShortwaveRadiation.toFixed(2), avgEvapotranspiration.toFixed(2)]
+      const avgShortwaveRadiation = calculateAverage(
+        hourlyData.shortwave_radiation
+      );
+      const avgEvapotranspiration = calculateAverage(
+        hourlyData.evapotranspiration
+      );
+
+      return {
+        avgTemperature: avgTemperature.toFixed(2),
+        avgPrecipitation: avgPrecipitation.toFixed(2),
+        avgShortwaveRadiation: avgShortwaveRadiation.toFixed(2),
+        avgEvapotranspiration: avgEvapotranspiration.toFixed(2),
+      };
     } catch (error) {
-      console.error("Error:", error);
+      console.error(`Error fetching weather for ${cityName}:`, error);
+      return null;
     }
   }
-  
 
   function calculateAverage(values) {
     const sum = values.reduce((acc, value) => acc + value, 0);
     return sum / values.length;
   }
-  
-//   fetchWeatherByCity("Okara");
 
+  useEffect(() => {
+    async function fetchData() {
+      const data = await fetchWeatherByCity(cityName);
+      setCityData(data);
+    }
+    fetchData();
+  }, [cityName]);
 
-  let  [ cityData , setCityData] = useState()
+  function changeCityName(event) {
+    setCityName(event.target.value);
+  }
 
+  return (
+    <div className="tempTable section">
+      <div className="navigateTable">
+        <DropDown list={divShortName} onChangeHandler={changeCityName} />
+      </div>
 
-
-//   return <div className="tempTable section">
-//     <table>
-//         <thead>
-//             <tr>
-//             <th>City Name</th>
-//             <th>Average Temperature (°C)</th>
-//             <th>Average Precipitation (mm)</th>
-//             <th>Average Shortwave Radiation (W/m²)</th>
-//             <th>Average Evapotranspiration (mm)</th>
-//             </tr>
-//         </thead>
-
-//         <tbody>
-
-//                 {divShortName.map(  (item,index)=>{
-//                      setCityData( fetchWeatherByCity(item))  
-//                     return <tr key={index}>
-//                         <td>{cityData[0]}</td>
-//                         <td>{cityData[1]}</td>
-//                         <td>{cityData[2]}</td>
-//                         <td>{cityData[3]}</td>
-//                     </tr>
-//                 })}
-
-//         </tbody>
-//     </table>
-//   </div>
-
+      <div className="table">
+        <table>
+          <thead>
+            <tr>
+              <th>Average Temperature (°C)</th>
+              <th>Average Precipitation (mm)</th>
+              <th>Average Shortwave Radiation (W/m²)</th>
+              <th>Average Evapotranspiration (mm)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cityData ? (
+              <tr>
+                <td>{cityData.avgTemperature}</td>
+                <td>{cityData.avgPrecipitation}</td>
+                <td>{cityData.avgShortwaveRadiation}</td>
+                <td>{cityData.avgEvapotranspiration}</td>
+              </tr>
+            ) : (
+              <tr>
+                <td colSpan="4">Loading...</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
-export default TempratureTable
+export default TemperatureTable;
