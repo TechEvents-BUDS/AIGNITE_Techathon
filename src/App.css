@@ -1,0 +1,174 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+
+:root {
+  font-family: poppins;
+  background-color: whitesmoke;
+  background-color: #33554E;
+  color: whitesmoke;
+}
+*{
+  margin: 0;
+  padding: 0;
+}
+
+
+.MainHeading{
+  width: 80vw;
+  margin-left: 10vw;
+  padding-top: 8rem;
+  font-size: 2rem;
+  height: 80vh;
+}
+
+.MainHeading h5 {
+  margin-top: 1em;
+}
+
+@keyframes appear{
+  from{
+    opacity: 0;
+    scale: 0.5;
+  }
+
+  to{
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.section{
+  height: 95vh;
+  margin: 7rem 0px;
+  width: 95%;
+  margin-left: 2.5%;
+  color: black;
+  border-radius: 10px;
+  animation: appear linear;
+  animation-timeline: view();
+  animation-range: entry 0% cover 40%;
+}
+
+.image {
+  background-image: url('https://img.freepik.com/free-photo/factory-producing-co2-pollution_23-2150858293.jpg?semt=ais_hybrid');
+  background-size: cover;
+}
+
+
+.graph-section{
+
+  height: unset;
+  background-color: white;
+  padding-bottom: 1em;
+}
+
+.navigate-graph {
+  display: flex;
+justify-content: center;
+width: 100%;
+}
+
+.navigate-graph select{
+  margin: 1.5em;
+  height: 2.5em;
+  font-size: 1em;
+  /* background-color: #3B71CA; */
+  /* color: whitesmoke; */
+  border-radius: 0.5em;
+  border: 1px solid gray;
+  font-weight: 500;
+}
+
+
+.graph-image{
+  display: flex;
+  justify-content: center;
+ 
+}
+.graph-image img{
+  width: 100%;
+}
+
+ button{
+font-size: 1em;
+width:  8rem;
+height:  2.5rem;
+border-radius: 5px;
+background-color: #3B71CA;
+color:whitesmoke;
+border: none;
+}
+
+button:hover{
+  cursor: pointer;
+  background-color: #1e5fc6;
+  box-shadow: 2px 2px 2px lightblue;
+}
+
+.ai-section{
+  background-color: white;
+  text-align: center;
+  font-size: 3.5rem;
+  font-weight: 300;
+  padding-bottom: 3%;
+
+  margin: 7rem 0px;
+  width: 95%;
+  margin-left: 2.5%;
+  color: black;
+  border-radius: 10px;
+  animation: appear linear;
+  animation-timeline: view();
+  animation-range: entry 0% cover 40%;
+
+
+}
+
+.ai-box{
+  display: flex;
+  margin-top: 3%;
+}
+
+.ai-box input{
+  width: 70%;
+  margin-left: 10%;
+  margin-right: 1%;
+  font-size: 20px;
+}
+
+.ai-box button{
+  margin: 0;
+  font-size: 0.3em;
+}
+
+.response{
+  text-align: left;
+  font-size: 0.4em;
+  margin: 3%;
+  letter-spacing: 1px;
+}
+
+
+.tempTable{
+  background-color: white ;
+  color: black;
+  height: unset;
+  display: flex;
+  justify-content: center;
+}
+
+thead{
+  margin-bottom: 3em;
+
+}
+
+
+table{
+  margin: 1.5em;
+}
+td{
+  text-align: center;
+}
+
+
